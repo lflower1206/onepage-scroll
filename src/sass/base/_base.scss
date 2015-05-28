@@ -1,0 +1,11 @@
+@include global-reset;
+
+html,
+body {
+  height: 100%;
+  widows: 100%;
+}
+
+body {
+  overflow: hidden;
+}

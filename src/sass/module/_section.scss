@@ -1,0 +1,9 @@
+.section {
+  height: 100%;
+  widows: 100%;
+  position: 100%;
+
+  &.display {
+    display: block;
+  }
+}
