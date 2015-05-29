@@ -1,9 +1,37 @@
 .section {
+  @include display-flex;
+  @include justify-content(center);
+  @include align-items(center);
+
   height: 100%;
   widows: 100%;
-  position: 100%;
 
-  &.display {
-    display: block;
+  h1 {
+    @include adjust-font-size-to(72px);
+    color: #fff;
+  }
+
+  &.chardonnay {
+    background-color: #ffcd8c;
+  }
+
+  &.illusion {
+    background-color: #f8a0b0;
+  }
+
+  &.viking {
+    background-color: #6ec7d7;
+  }
+
+  &.neonCarrot {
+    background-color: #ff9b36;
+  }
+
+  &.mandy {
+    background-color: #e4566c;
+  }
+
+  &.bondiBlue {
+    background-color: #0090b1;
   }
 }

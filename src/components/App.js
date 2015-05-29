@@ -3,6 +3,8 @@
 var React = require('react/addons');
 var SectionList = require('./SectionList');
 
+require('../sass/fullpage.scss');
+
 var App = React.createClass({
     render: function () {
       return (

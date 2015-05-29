@@ -5,8 +5,8 @@ var React = require('react/addons');
 var FirstSection = React.createClass({
     render: function () {
       return (
-          <div className="section">
-              <h1>section 1</h1>
+          <div className="section viking">
+              <h1>Section 3</h1>
           </div>
       );
     }
