@@ -1,66 +1,51 @@
-/*
- * Webpack distribution configuration
- *
- * This file is set up for serving the distribution version. It will be compiled to dist/ by default
- */
-
 'use strict';
-
+var path = require("path");
 var webpack = require('webpack');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = {
 
   output: {
-    publicPath: '/assets/',
-    path: 'dist/assets/',
-    filename: 'main.js'
+      path: path.join(__dirname, 'dist'),
+      filename: 'fullpage.min.js',
+      publicPath: 'dist/'
   },
 
-  debug: false,
-  devtool: false,
-  entry: './src/components/ReactOnepageApp.js',
+  cache: true,
+  entry: [
+      './src/components/App.js'
+  ],
 
   stats: {
-    colors: true,
-    reasons: false
+      colors: true,
+      reasons: true
+  },
+
+  resolve: {
+      extensions: ['', '.js'],
+      alias: {
+          'components': __dirname + '/src/components/'
+      }
+  },
+  module: {
+    loaders: [{
+        test: /.js$/,
+        exclude: /node_modules/,
+        loader: 'jsxhint!react-hot'
+    },
+    {
+        test: /fullpage.scss$/,
+        loader : ExtractTextPlugin.extract(
+           'style-loader', 
+           'css-loader?minimize!sass-loader?includePaths[]=' 
+            + path.resolve(__dirname, './node_modules/compass-mixins/lib')
+        )
+    }]
   },
 
   plugins: [
-    new webpack.optimize.DedupePlugin(),
-    new webpack.optimize.UglifyJsPlugin(),
-    new webpack.optimize.OccurenceOrderPlugin(),
-    new webpack.optimize.AggressiveMergingPlugin()
-  ],
+    // new webpack.optimize.UglifyJsPlugin(),
+    new ExtractTextPlugin('fullpage.min.css')
+  ]
 
-  resolve: {
-    extensions: ['', '.js'],
-    alias: {
-      'styles': __dirname + '/src/styles',
-      'mixins': __dirname + '/src/mixins',
-      'components': __dirname + '/src/components/'
-    }
-  },
-
-  module: {
-    preLoaders: [{
-      test: /\.js$/,
-      exclude: /node_modules/,
-      loader: 'jsxhint'
-    }],
-
-    loaders: [{
-      test: /\.js$/,
-      exclude: /node_modules/,
-      loader: 'babel-loader'
-    }, {
-      test: /\.css$/,
-      loader: 'style-loader!css-loader'
-    }, {
-      test: /\.scss/,
-      loader: 'style-loader!css-loader!sass-loader?outputStyle=expanded'
-    }, {
-      test: /\.(png|jpg|woff|woff2)$/,
-      loader: 'url-loader?limit=8192'
-    }]
-  }
 };

@@ -7,7 +7,7 @@ module.exports = {
 
   output: {
       path: path.join(__dirname, 'dist'),
-      filename: 'bundle.js',
+      filename: 'fullpage.min.js',
       publicPath: 'dist/'
   },
 
@@ -25,7 +25,6 @@ module.exports = {
   resolve: {
       extensions: ['', '.js'],
       alias: {
-          'mixins': __dirname + '/src/mixins',
           'components': __dirname + '/src/components/'
       }
   },
@@ -48,7 +47,7 @@ module.exports = {
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoErrorsPlugin(),
-    new ExtractTextPlugin('fullpage.css')
+    new ExtractTextPlugin('fullpage.min.css')
   ]
 
 };

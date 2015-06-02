@@ -13,53 +13,115 @@ var React = require('react/addons'),
 
 var SectionList = React.createClass({
     mixins: [],
+    _handleMouseWheel: function() {
+        document.addEventListener('mousewheel', this._mouseWheelHandler, false);
+        document.addEventListener('DOMMouseScroll', this._mouseWheelHandler, false);
+    },
+    _handleSwipe: function() {
+
+        document.addEventListener('touchstart', this._swipeStartHandler, false);
+
+        document.addEventListener('touchmove', function(event) {
+            event.preventDefault();
+        }, false);
+
+        document.addEventListener('touchend', this._swipeEndHandler, false);
+    },
     _mouseWheelHandler: function(event) {
         event.preventDefault();
-        var delta = event.wheelDelta || -event.detail;
-        // if (!_hasClass(body, "disabled-onepage-scroll")) _init_scroll(event, delta);
-        this._scrollSection(delta);
-    },
-    _scrollSection: function(delta) {
-
-        var nextPosition = 0;
+        var delta = event.wheelDelta || -event.detail,
+            nextIndex = 0,
+            activeIndex = this.state.activeIndex,
+            sectionCount = this.state.sectionCount;
 
         if(this.state.scrollable) {
+
             this.setState({
                 scrollable: false
             });
 
-            nextPosition = this._getPosition(delta);
+            if (delta > 0 && (activeIndex - 1) >= 0) {
 
-            React.findDOMNode(this.refs.sectionList).style.cssText = this._getTransformCSS(nextPosition);
+                this._scrollUp();
+
+            } else if (delta < 0 && (activeIndex + 1) < sectionCount) {
+
+                this._scrollDown();
+
+            } else {
+                this.setState({
+                    scrollable: true
+                });
+            }
+
         }
-    },
-    _getPosition: function(delta) {
 
-        var nextIndex = 0,
+    },
+    _swipeStartHandler: function(event) {
+        event.preventDefault();
+
+        var changedTouch = event.changedTouches[0];
+
+        this.setState({
+            startX: changedTouch.pageX,
+            startY: changedTouch.pageY,
+            startTime: new Date().getTime()
+        });
+    },
+    _swipeEndHandler: function(event) {
+        event.preventDefault();
+
+        var changedTouch = event.changedTouches[0],
+            startX = this.state.startX,
+            startY = this.state.startY,
+            delta = changedTouch.pageY - startY,
+            threshold = this.props.threshold,
+            allowedTime = this.props.allowedTime,
+            elapsedTime = new Date().getTime() - this.state.startTime,
+            swiperightBol = (elapsedTime <= allowedTime && delta >= threshold && Math.abs(changedTouch.pageX - startX) <= 100),
             activeIndex = this.state.activeIndex,
             sectionCount = this.state.sectionCount;
 
-        if (delta > 0 && (activeIndex - 1) >= 0) {
+        console.log('delta : ' + delta);
 
-            nextIndex = activeIndex - 1;
-
-        } else if (delta < 0 && (activeIndex + 1) < sectionCount) {
-
-            nextIndex = activeIndex + 1;
-
-        } else {
-            nextIndex = activeIndex;
+        if(this.state.scrollable) {
 
             this.setState({
-                scrollable: true
+                scrollable: false
             });
+
+            if (delta > 0 && (activeIndex - 1) >= 0) {
+
+                this._scrollUp();
+
+            } else if (delta < 0 && (activeIndex + 1) < sectionCount) {
+
+                this._scrollDown();
+
+            } else {
+                this.setState({
+                    scrollable: true
+                });
+            }
+
         }
+    },
+    _scrollUp: function() {
+        this._scroll(this.state.activeIndex - 1);
+    },
+    _scrollDown: function() {
+        this._scroll(this.state.activeIndex + 1);
+    },
+    _scroll: function(nextIndex) {
 
         this.setState({
             activeIndex: nextIndex,
+            startX: 0,
+            startY: 0,
+            startTime: 0
         });
 
-        return nextIndex * -100;
+        React.findDOMNode(this.refs.sectionList).style.cssText = this._getTransformCSS(nextIndex * -100);
     },
     _getTransformCSS: function(position) {
         return ['-webkit-transform: translate3d(0, ' + position + '%, 0);',
@@ -74,23 +136,29 @@ var SectionList = React.createClass({
     getInitialState: function() { 
         return({
             activeIndex: 0,
-            sectionCount: 6,
-            scrollable: true
+            sectionCount: 0,
+            scrollable: true,
+            startX: 0, 
+            startY: 0,
+            startTime: 0
         });
     },
     getDefaultProps: function() {
         return {
             easing: 'ease',
-            animationTime: 1000
+            animationTime: 1000,
+            threshold: 150,
+            allowedTime: 200
         };
     },
     componentWillMount: function() {},
     componentDidMount: function() {
-        document.addEventListener('mousewheel', this._mouseWheelHandler);
-        document.addEventListener('DOMMouseScroll', this._mouseWheelHandler);
+        this._handleMouseWheel();
+        this._handleSwipe();
 
         // window.requestAnimationFrame = Modernizr.prefixed('requestAnimationFrame', window);
         // window.cancelAnimationFrame = Modernizr.prefixed('cancelAnimationFrame', window);
+
 
         var sectionList = React.findDOMNode(this.refs.sectionList),
             _scrollEnd = function() {
@@ -102,7 +170,7 @@ var SectionList = React.createClass({
             };
 
         sectionList.addEventListener(transEndEventName, _scrollEnd.bind(this), false);
-
+        this.setState({sectionCount: sectionList.getElementsByClassName('section').length});
     },
     shouldComponentUpdate: function() {
         return true;

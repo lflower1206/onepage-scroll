@@ -2,58 +2,10 @@ var gulp = require('gulp'),
     gutil = require('gulp-util'),
     webpack = require('webpack'),
     WebpackDevServer = require('webpack-dev-server'),
+    gulpWebpack = require('gulp-webpack'),
     webpackConfig = require('./webpack.config.js'),
-    compass = require('gulp-compass'),
-    rename = require('gulp-rename');
+    del = require('del');
 
-var paths = {
-    src: {
-        path: 'src',
-        assets: 'assets/**/*.*',
-        sass: 'src/sass/**/*.scss',
-    },
-    dist: {
-        path: 'dist',
-        assets: 'build/assets/',
-        css: 'dist/css',
-    }
-};
-
-/* gulp.task('build-sass', function() {
-    gulp.src(paths.src.sass)
-        .pipe(compass({
-            sass: 'src/sass',
-            css: 'build/css',
-            image: 'assets/images',
-            require: ['susy', 'breakpoint'],
-            comments: false
-        }))
-        .pipe(rename({
-            suffix: '.min'
-        }))
-        .pipe(minifyCSS())
-        .pipe(gulp.dest(paths.dist.css));
-}); */
-
-gulp.task('build-sass:watch', function() {
-
-    gulp.watch(paths.src.sass, function() {
-        gulp.src(paths.src.sass)
-            .pipe(compass({
-                sass: 'src/sass',
-                css: 'dist/css',
-                image: 'assets/images',
-                comments: false
-            }))
-            .pipe(rename({
-                suffix: '.min'
-            }))
-            .pipe(gulp.dest(paths.dist.css));
-    });
-
-});
-
-// gulp.task('default', ['webpack-dev-server', 'build-sass:watch']);
 gulp.task('default', ['webpack-dev-server']);
 
 gulp.task('webpack-dev-server', function(callback) {
@@ -73,5 +25,19 @@ gulp.task('webpack-dev-server', function(callback) {
     }).listen(8080, 'localhost', function(err) {
         if(err) throw new gutil.PluginError('webpack-dev-server', err);
         gutil.log('[webpack-dev-server]', 'http://localhost:8080/index.html');
+    });
+});
+
+gulp.task('build', ['clean'], function() {
+    gulp.src('src/components/App.js')
+        .pipe(gulpWebpack(require('./webpack.dist.config.js')))
+        .pipe(gulp.dest('dist/'));
+});
+
+gulp.task('clean', function() {
+    del('./build', function (err, paths) {
+        if (paths) {
+            console.log('Deleted files/folders:\n', paths.join('\n'));
+        }
     });
 });
