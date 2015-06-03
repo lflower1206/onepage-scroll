@@ -13,26 +13,12 @@ var React = require('react/addons'),
 
 var SectionList = React.createClass({
     mixins: [],
-    _handleMouseWheel: function() {
-        document.addEventListener('mousewheel', this._mouseWheelHandler, false);
-        document.addEventListener('DOMMouseScroll', this._mouseWheelHandler, false);
-    },
-    _handleSwipe: function() {
-
-        document.addEventListener('touchstart', this._swipeStartHandler, false);
-
-        document.addEventListener('touchmove', function(event) {
-            event.preventDefault();
-        }, false);
-
-        document.addEventListener('touchend', this._swipeEndHandler, false);
-    },
     _mouseWheelHandler: function(event) {
         event.preventDefault();
         var delta = event.wheelDelta || -event.detail,
             nextIndex = 0,
-            activeIndex = this.state.activeIndex,
-            sectionCount = this.state.sectionCount;
+            activeIndex = this.props.activeIndex,
+            sectionCount = this.props.sectionCount;
 
         if(this.state.scrollable) {
 
@@ -41,19 +27,14 @@ var SectionList = React.createClass({
             });
 
             if (delta > 0 && (activeIndex - 1) >= 0) {
-
                 this._scrollUp();
-
             } else if (delta < 0 && (activeIndex + 1) < sectionCount) {
-
                 this._scrollDown();
-
             } else {
                 this.setState({
                     scrollable: true
                 });
             }
-
         }
 
     },
@@ -79,10 +60,8 @@ var SectionList = React.createClass({
             allowedTime = this.props.allowedTime,
             elapsedTime = new Date().getTime() - this.state.startTime,
             swiperightBol = (elapsedTime <= allowedTime && delta >= threshold && Math.abs(changedTouch.pageX - startX) <= 100),
-            activeIndex = this.state.activeIndex,
-            sectionCount = this.state.sectionCount;
-
-        console.log('delta : ' + delta);
+            activeIndex = this.props.activeIndex,
+            sectionCount = this.props.sectionCount;
 
         if(this.state.scrollable) {
 
@@ -91,37 +70,38 @@ var SectionList = React.createClass({
             });
 
             if (delta > 0 && (activeIndex - 1) >= 0) {
-
                 this._scrollUp();
-
             } else if (delta < 0 && (activeIndex + 1) < sectionCount) {
-
                 this._scrollDown();
-
             } else {
                 this.setState({
                     scrollable: true
                 });
             }
-
         }
     },
     _scrollUp: function() {
-        this._scroll(this.state.activeIndex - 1);
+        this._scroll(this.props.activeIndex - 1);
     },
     _scrollDown: function() {
-        this._scroll(this.state.activeIndex + 1);
+        this._scroll(this.props.activeIndex + 1);
     },
     _scroll: function(nextIndex) {
 
+        React.findDOMNode(this.refs.sectionList).style.cssText = this._getTransformCSS(nextIndex * -100);
+
+        if (this.props.onScrolled) {
+            this.props.onScrolled({
+                from: this.props.activeIndex,
+                to: nextIndex
+            });
+        }
+
         this.setState({
-            activeIndex: nextIndex,
             startX: 0,
             startY: 0,
             startTime: 0
         });
-
-        React.findDOMNode(this.refs.sectionList).style.cssText = this._getTransformCSS(nextIndex * -100);
     },
     _getTransformCSS: function(position) {
         return ['-webkit-transform: translate3d(0, ' + position + '%, 0);',
@@ -136,7 +116,6 @@ var SectionList = React.createClass({
     getInitialState: function() { 
         return({
             activeIndex: 0,
-            sectionCount: 0,
             scrollable: true,
             startX: 0, 
             startY: 0,
@@ -148,38 +127,38 @@ var SectionList = React.createClass({
             easing: 'ease',
             animationTime: 1000,
             threshold: 150,
-            allowedTime: 200
+            allowedTime: 200,
+            sectionCount: 0
         };
     },
-    componentWillMount: function() {},
+    componentWillMount: function() {
+
+        document.addEventListener('mousewheel', this._mouseWheelHandler, false);
+        document.addEventListener('DOMMouseScroll', this._mouseWheelHandler, false);
+
+    },
     componentDidMount: function() {
-        this._handleMouseWheel();
-        this._handleSwipe();
-
-        // window.requestAnimationFrame = Modernizr.prefixed('requestAnimationFrame', window);
-        // window.cancelAnimationFrame = Modernizr.prefixed('cancelAnimationFrame', window);
-
 
         var sectionList = React.findDOMNode(this.refs.sectionList),
+            sectionCount = sectionList.getElementsByClassName('section').length,
             _scrollEnd = function() {
-
                 this.setState({
                     scrollable: true
                 });
-                console.log('scroll end');
             };
 
         sectionList.addEventListener(transEndEventName, _scrollEnd.bind(this), false);
-        this.setState({sectionCount: sectionList.getElementsByClassName('section').length});
+
+        if (this.props.onDidMount) {
+            this.props.onDidMount({sectionCount: sectionCount});
+        }
     },
     shouldComponentUpdate: function() {
         return true;
     },
-    componentDidUpdate: function() {},
-    componentWillUnmount: function() {},
     render: function () {
         return (
-            <div className="section-list" ref="sectionList">
+            <div className="section-list" ref="sectionList" onTouchStart={this._swipeStartHandler} onTouchEnd={this._swipeEndHandler}>
                 <Section1 ref="section1" />
                 <Section2 ref="section2" />
                 <Section3 ref="section3" />

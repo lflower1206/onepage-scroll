@@ -2,7 +2,7 @@
 
 var React = require('react/addons');
 
-var FirstSection = React.createClass({
+var Section5 = React.createClass({
     render: function () {
       return (
           <div className="section mandy">
@@ -12,4 +12,4 @@ var FirstSection = React.createClass({
     }
 });
 
-module.exports = FirstSection; 
+module.exports = Section5; 

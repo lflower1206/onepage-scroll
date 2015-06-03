@@ -1,13 +1,19 @@
+.section-list {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
 .section {
   @include display-flex;
   @include justify-content(center);
   @include align-items(center);
 
   height: 100%;
-  widows: 100%;
+  width: 100%;
 
   h1 {
-    @include adjust-font-size-to(72px);
+    @include adjust-font-size-to(56px);
     color: #fff;
   }
 

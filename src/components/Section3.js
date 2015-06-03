@@ -2,7 +2,7 @@
 
 var React = require('react/addons');
 
-var FirstSection = React.createClass({
+var Section3 = React.createClass({
     render: function () {
       return (
           <div className="section viking">
@@ -12,4 +12,4 @@ var FirstSection = React.createClass({
     }
 });
 
-module.exports = FirstSection; 
+module.exports = Section3; 

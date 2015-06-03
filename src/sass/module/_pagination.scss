@@ -1,0 +1,24 @@
+.pagination {
+  @include stretch(null, null, 20px, 50%);
+  @include inline-block-list-container;
+
+  margin-left: -123px;
+  z-index: 99;
+
+  .indicator {
+    @include inline-block-list-item(5px);
+
+    &.active {
+        border-bottom: 2px solid #fff;
+    }
+  }
+
+  a {
+    @include adjust-font-size-to(20px);
+
+    color: #fff;
+    cursor: pointer;
+    padding: 10px;
+    text-decoration: none;
+  }
+}

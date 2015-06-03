@@ -1,7 +1,8 @@
 @charset 'UTF-8';
 
 @import 'compass';
+@import "compass/layout";
 
 @import 'base/base';
-@import 'module/section_list';
+@import 'module/pagination';
 @import 'module/section';
